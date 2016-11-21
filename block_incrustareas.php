@@ -23,9 +23,6 @@ require_once($CFG->dirroot . '/files/externallib.php');
             } else {
                 $this->title = $this->config->title;
             }
-            /*if (empty($this->config->text)) {
-                $this->config->text = get_string('defaulttext', 'block_incrustareas');
-            }*/
         }
     }
     
@@ -53,6 +50,7 @@ require_once($CFG->dirroot . '/files/externallib.php');
             $fecha_creacion = $sql_resultado->timecreated;
             $fecha_creacion = date('d-m-Y', $fecha_creacion);
             $id_archivo = $sql_resultado->itemid;
+            $ruta_archivo = $sql_resultado->contenthash;
         } else {
             $archivo_actividades = 'no hay archivo cargado';
         }
@@ -79,8 +77,8 @@ require_once($CFG->dirroot . '/files/externallib.php');
         global $PAGE;
         $this->content = new stdClass();
         //$this->content->text = html_writer::tag('p', 'Este bloque requiere un archivo nombrado como "actividades.txt" que ha de subirse previamente.<br/>');
-        $this->content->text = html_writer::tag('label', 'Se ha encontrado el archivo: <a href="'.$ruta_pinta_archivo.'?='.$id_archivo.'" target="_blank"><strong>'.$archivo_actividades.'</strong></a><br/>Creado el día: <strong>'.$fecha_creacion.'</strong><br/><br/>');
-        $this->content->footer = '¿Este archivo pertenece a las actividades del curso <strong>'.$COURSE->fullname.'</strong>?';
+        $this->content->text = html_writer::tag('label', 'Se ha encontrado el archivo: <a href="'.$ruta_pinta_archivo.'?='.$id_archivo.'?='.$ruta_archivo.'" target="_blank"><strong>'.$archivo_actividades.'</strong></a><br/>Creado el día: <strong>'.$fecha_creacion.'</strong><br/><br/>');
+        $this->content->footer = '¿Este archivo pertenece a las tareas del curso <strong>'.$COURSE->fullname.'</strong>?';
         return $this->content;
     }
  }
