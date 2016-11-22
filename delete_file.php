@@ -8,11 +8,11 @@
     $recojo_id_borrar = $recojo_campos_a_borrar[1];
     $recojo_ruta_borrar = $recojo_campos_a_borrar[2];
     
-//  Borro el archivo
+    // Borro el archivo
     if($DB->delete_records("files", array('itemid'=>$recojo_id_borrar))) {
-        echo 'Archivo borrado con éxito';
+        echo "<script languaje='javascript' type='text/javascript'>alert('Archivo borrado con éxito'); window.opener.location.reload(); window.close();</script>";
     } else {
-        'Error al borrar el archivo';
+        echo "<script languaje='javascript' type='text/javascript'>alert('Error al borrar el archivo'); window.opener.location.reload(); window.close();</script>";
     }
         
 

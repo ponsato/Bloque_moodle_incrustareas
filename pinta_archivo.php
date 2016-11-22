@@ -16,16 +16,9 @@
 
 // Pinto el contenido del archivo    
     $contenido = fopen($ruta_valida, "r+") or exit ("No se ha podido abrir!");
-    while(!feof($contenido)) {
-        echo fgets($contenido).'<br/>';
-    }
+    header('Content-Type: text/html; charset=iso-8859-1');
+    include($ruta_valida);
     fclose($contenido);
-
-
-
-
-
-
 
 ?>
 

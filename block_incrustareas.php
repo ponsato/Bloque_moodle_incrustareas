@@ -45,7 +45,7 @@ require_once($CFG->dirroot . '/files/externallib.php');
         $ruta_delete_file = $CFG->wwwroot . '/blocks/incrustareas/delete_file.php';
         
     //  Obtengo el contenido (nombre, fecha y texto) del archivo que se ha subido
-        $sql = "SELECT * from mdl_files where id<(SELECT max(id) from mdl_files) and filename like '%actividades.txt%' ORDER BY id DESC";
+        $sql = "SELECT * from mdl_files where id<(SELECT max(id) from mdl_files) and filename like '%actividades.htm%' ORDER BY id DESC";
         //$sql_resultado = $DB->get_record_sql($sql);
         if ($sql_resultado = $DB->get_record_sql($sql)) {
             $archivo_actividades = $sql_resultado->filename;
