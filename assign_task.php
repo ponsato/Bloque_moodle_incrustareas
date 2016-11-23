@@ -30,24 +30,23 @@
     $documentopath = new DOMXPath($documento);
 
     
-    $tema[] = $documentopath->query('//p[@class="MsoTitle"]');
-    for($i=0; $i<=2 $i++) {
-        echo 'pintate algo<br/>';
+    
+    for($i=0; $i<=$documentopath->query('//p[@class="MsoTitle"]'); $i++) {
+        echo 'pintate algo';
     }
-    $tema = $documentopath->query('//p[@class="MsoTitle"]');
+    /*$tema = $documentopath->query('//p[@class="MsoTitle"]');
     print_r($tema);
 
     foreach($tema as $temas){
         $tema = strval($temas->nodeValue); 
     }
-    
     echo 'aqui<br/><br/>';
     print_r($tema);
 
     $todo = $documentopath->query('//div[@class="WordSection1"]');
     foreach($todo as $todos){
         $todo = strval($todos->nodeValue); 
-    }
+    }*/
     
     //echo $todo;
 
