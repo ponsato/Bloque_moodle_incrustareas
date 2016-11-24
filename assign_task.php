@@ -27,18 +27,44 @@
     foreach ($documentopath->query('//p[@class="MsoTitle"]') as $titulos_capitulos) {
         $titulos_capituloss[] = $titulos_capitulos->nodeValue;
     }
-    print_r($titulos_capituloss);
+    //print_r($titulos_capituloss);
 
-    // Obtengo el número de actividades de cada tema
+    // Obtengo cada uno de los elementos
     foreach ($documentopath->query('//div') as $elemento) {
         $elementos[] = $elemento;
     }
-    for ($i=0; $i<=count($elementos); $i++) {
-        foreach($elementos[$i] as $hijos) {
-            
+    //print_r($elementos[1]->nodeValue);
+    
+    // Distingo los títulos de unidad
+    for ($i=1; $i<count($elementos); $i++) {
+        if(strpos($elementos[$i]->nodeValue, 'Unidad de aprendizaje')) {
+            echo '<h2>'.$elementos[$i]->nodeValue.'</h2>';
+        } else {
+            foreach ($elementos[$i]->getElementsbyTagname('p') as $parrafo) {
+                $parrafos[] = $parrafo->nodeValue;
+            }
+            for($j=0; $j<count($parrafos); $j++) {
+                if ($j==0) {
+                    echo '<strong>'.$parrafos[$j].'</strong></br>';
+                } else {
+                    echo $parrafos[$j].'</br>';        
+                }
+                
+            }
+            echo '<br/>';
+            $parrafos = array();
         }
-        
+       
     }
+
+    // Obtengo sus párrafos para distinguir actividad de cambio de tema y poder asociar cada actividad a su tema
+    /*for ($i=0; $i<=count($elementos); $i++) {
+        foreach($elementos[$i] as $hijo) {
+            $hijos[$i] = $hijo->query('//p');
+            echo 'd';
+        }
+    }
+    print_r($hijos);*/
     
 
 
