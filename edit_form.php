@@ -23,19 +23,7 @@ class block_incrustareas_edit_form extends block_edit_form {
         $mform->addElement('text', 'id_curso', 'Id del curso<br/><small>Indicado en la url tras ?id=</small>');
         $mform->setDefault('id_curso', ' ');
         $mform->setType('id_curso', PARAM_INT);
-        
-        
     }
-    
-    /*function config_save($data) {
-    // Comportamiento por defecto: guarda todas las variables como propiedades $CFG
-    // No necesitas sobrescribirlo si estás satisfecho con lo anterior
-    foreach ($data as $name => $value) {
-        set_config($name, $value);
-    }
-    return true;*/
-}
-
 }
 
 

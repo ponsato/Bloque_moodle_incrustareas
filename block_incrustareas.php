@@ -85,7 +85,7 @@ require_once($CFG->dirroot . '/files/externallib.php');
             $this->content->text = html_writer::tag('label', '<strong>'.$archivo_actividades.'</strong></a><br/><strong>'.$fecha_creacion.'</strong><br/><br/>'); 
         } else {
             $this->content->text = html_writer::tag('label', 'Se ha encontrado el archivo: <a href="'.$ruta_pinta_archivo.'?='.$id_archivo.'?='.$ruta_archivo.'" target="_blank"><strong>'.$archivo_actividades.'</strong></a><br/>Creado el día: <strong>'.$fecha_creacion.'</strong><br/><br/>');
-            $this->content->footer = '¿Este archivo pertenece a las tareas del curso <strong>'.$COURSE->fullname.'</strong> cuya id es <strong>'.$COURSE->id.'</strong>?<br/><ul style="list-style:none; font-weight:bold"><li><a href="'.$ruta_assign_task.'?='.$id_archivo.'?='.$ruta_archivo.'?='.$COURSE->id.'" target="_blank">Si</a></li><li><a href="'.$ruta_delete_file.'?='.$id_archivo.'?='.$ruta_archivo.'" target="_blank">No, borrar</a></li></ul>';
+            $this->content->footer = '¿Este archivo pertenece a las tareas del curso <strong>'.$COURSE->fullname.'</strong> cuya id del curso es <strong>'.$COURSE->id.'</strong>?<br/><ul style="list-style:none; font-weight:bold"><li><a href="'.$ruta_assign_task.'?='.$id_archivo.'?='.$ruta_archivo.'?='.$COURSE->id.'" target="_blank">Si</a></li><li><a href="'.$ruta_delete_file.'?='.$id_archivo.'?='.$ruta_archivo.'" target="_blank">No, borrar</a></li></ul>';
         }
         return $this->content;
     }
