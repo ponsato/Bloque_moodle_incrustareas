@@ -60,175 +60,11 @@
     }*/
 
 
-/****************************** DB *********************************************/
-    // VARIABLES con los valores necesarios para agregar tareas en cada tabla
 
-    // MDL_COURSE_MODULES -> columnas
-        //id = $id_course_modules -> obtengo el último agregada para incrementarlo en 1
-            $ultimo_id_course_modules = 'SELECT MAX(id) AS id FROM mdl_course_modules';
-            $recojo_id_course = $DB->get_record_sql($ultimo_id_course_modules);
-            $id_course_modules = $recojo_id_course->id;
-            $id_course_modules++;
-        // course = $id_course
-            $id_course = $id_course;
-        // module = $module_type -> el típo de recurso a insertar. 1 tarea, 5 actividad (foro). Condición para distinguir entre actividad o tarea que asigna el valor a esta variable
-            $module_tipe = 0;
-        // instance -> equivale a la id de la tabla mdl_assign donde se añaden los enunciados, por lo que obtengo el último id para agregarlo
-            $ultima_instance = 'SELECT MAX(id) AS id FROM mdl_assign';
-            $recojo_instance = $DB->get_record_sql($ultima_instance);
-            $instance = $recojo_instance->id;
-            $instance++;
-        // section -> el número del tema donde añadir el recurso. Se incrementa automáticamente tantas veces como temas hay.
-            $numero_capitulo = 0;
-        // idnumber -> no es obligatorio, por lo que será NULL o vacío
-            $idnumber_course_modules = '';
-        // added -> fecha de inclusión. Se pondrá la misma que la del fichero subido
-            $fecha_de_archivo = "SELECT * from mdl_files where id<(SELECT max(id) from mdl_files) and filename like '%actividades.htm%' ORDER BY id DESC";
-            $fecha_creacion_archivo = $DB->get_record_sql($fecha_de_archivo);
-            $fecha_course_module = $fecha_creacion_archivo->timecreated;
-        // score -> puntuación. Será siempre cero hasta recibir calificación
-            $score_course_module = 0;
-        // indent -> si se ha indentado hacia la izquierda
-            $indent_course_module = 0;
-        // visible y visibleold -> se muestra o está oculto
-            $visible_course_module = 1;
-            $visible_old_course_module = 1;
-        // groupmode y groupingid -> grupos permitidos
-            $groupmode_course_module = 0;
-            $groupingid_course_module = 0;
-        // completion, completiongradeitemnumber, completionview y completionexpected -> Finalización
-            $completion_course_module = 0;
-            $completiongradeitemnumber = 'NULL';
-            $completionview_course_module = 0;
-            $completionexpected_course_module = 0;
-        // showdescription -> muestra descripción
-            $showdescription_course_module = 0;
-        // availability -> disponibilidad
-            $availability_course_moudle = 'NULL';
-
-    // Sentencias para escribir en MDL_COURSE_MODULES
-    $tabla_mdl_course_modules = "INSERT into mdl_course_modules
-        (id, course, module, instance, section, idnumber, added, score, indent, visible, visibleold, groupmode, groupingid, completion, completiongradeitemnumber, completionview, completionexpected, showdescription, availability) VALUES ($id_course_modules, $id_course, $module_tipe, $instance, $numero_capitulo, $idnumber_course_modules, $fecha_course_module, $score_course_module, $indent_course_module, $visible_course_module, $visible_old_course_module, $groupmode_course_module, $groupingid_course_module, $completion_course_module, $completiongradeitemnumber, $completionview_course_module, $completionexpected_course_module, $showdescription_course_module, $availability_course_moudle)";
+$numero_capitulo = 0;
 
 
-    // MDL_ASSIGN -> columnas
-        // id -> se ha recogido anteriormente mediante la variable $instance de mdl_course_modules
-            $id_assign = $instance;
-        // course -> id del curso
-            $id_course = $id_course;
-        // name -> nombre del recurso. Se agrega automáticamente a la fila correspondiente
-            $name_assign = '';
-        // intro -> enunciado del recurso. Se agrega automáticamente a la fila correspondiente. Añadir coletilla.
-            $intro_assign = '';
-        // introformat -> formato de introducción
-            $introformat_assign = 1;
-        // alwaysshowdescription -> muestra descripción
-            $alwaysshowdescription_assign = 1;
-        // nosubmissions, submissiondrafts
-            $nosubmissions_assign = 0;
-            $submissiondrafts_assign = 0;
-        // sendnotifications y sendlatenotifications -> enviar notificaciones al tutor
-            $sendnotifications_assign = 1;
-            $sendlatenotifications_assign = 1;
-        // duedate
-            $duedate_assign = 0;
-        // allowsubmissionsfromdate
-            $allowsubmissionsfromdate_assign = 0;
-        // grade
-            $grade_assign = 100;
-        // timemodified
-            $timemodified_assign = $fecha_course_module;
-        // requiresubmissionstatement
-            $requiresubmissionstatement_assing = 0;
-        // completionsubmit
-            $completionsubmit_assign = 0;
-        // curoffdate
-            $cutoffdate_assign = 0;
-        // teamsubmission
-            $teamsubmission_assign = 0;
-        // requireallteammemberssubmit
-            $requireallteammemberssubmit_assign = 0;
-        // teamsubmissiongroupingid
-            $teamsubmissiongroupingid_assign = 0;
-        // blindmarking
-            $blindmarking_assign = 0;
-        // revealidentities
-            $revealidentities_assign = 0;
-        // attemptreopenmethod
-            $attemptreopenmethod_assign = 'none';
-        // maxattempts
-            $maxattempts_assign = -1;
-        // markingworkflow
-            $markingworkflow_assign = 0;
-            $markingallocation_assign = 0;
-        // sendstudentnotifications
-            $sendstudentnotifications_assign = 1;
-
-    // Sentencias para escribir en MDL_ASSIGN
-    $tabla_mdl_assign = "INSERT into mdl_assign 
-        (id, course, name, intro, introformat, alwaysshowdescription, nosubmissions, submissiondrafts, sendnotifications, sendlatenotifications, duedate, allowsubmissionsfromdate, grade, timemodified, requiresubmissionstatement, completionsubmit, cutoffdate, teamsubmission, requireallteammemberssubmit, teamsubmissiongroupingid, blindmarking, revealidentities, attemptreopenmethod, maxattempts, markingworkflow, markingallocation, sendstudentnotifications) VALUES ($id_assign, $id_course, $name_assign, $intro_assign, $introformat_assign, $alwaysshowdescription_assign, $nosubmissions_assign, $submissiondrafts_assign, $sendnotifications_assign, $sendlatenotifications_assign, $duedate_assign, $allowsubmissionsfromdate_assign, $grade_assign, $timemodified_assign, $requiresubmissionstatement_assing, $completionsubmit_assign, $cutoffdate_assign, $teamsubmission_assign, $requireallteammemberssubmit_assign, $teamsubmissiongroupingid_assign, $blindmarking_assign, $revealidentities_assign, $attemptreopenmethod_assign, $maxattempts_assign, $markingworkflow_assign, $markingallocation_assign, $sendstudentnotifications_assign)";
-
-
-    // MDL_GRADE_ITEMS -> columnas
-        // id -> $id_grade_items obtengo el último agregada para incrementarlo en 1
-            $ultimo_id_grade_items = 'SELECT MAX(id) AS id FROM mdl_grade_items';
-            $recojo_id_grade_items = $DB->get_record_sql($ultimo_id_grade_items);
-            $id_grade_items = $recojo_id_grade_items->id;
-            $id_grade_items++;
-        // courseid -> id del curso
-            $courseid_grade_items = $id_course;
-        // categoryid -> número de tema
-            $categoryid_grade_items = $numero_capitulo;
-        // itemname -> título del recurso
-            $itemname_grade_items = $name_assign;
-        // itemtype -> tipo de recurso
-            $itemtype_grade_items = 'mod';
-        // itemmodule -> módulo que lo genera
-            $itemmodule_grade_items = 'assign';
-        // iteminstance -> ya generado 
-            $iteminstance_grade_items = $instance;
-        // itemnumber 
-            $itemnumber_grade_items = 0;
-        // iteminfo, idnumber, calculation, gradetype, grademax, grademin, scaleid, outcomeid, gradepass
-            $iteminfo_grade_items = 'NULL';
-            $idnumber_grade_items = 'NULL';
-            $calculation_grade_items = 'NULL';
-            $gradetype_grade_items = 1;
-            $grademax_grade_items = 100.00000;
-            $grademin_grade_items = 0.00000;
-            $scaleid_grade_items = 'NULL';
-            $outcomeid_grade_items = 'NULL';
-            $gradepass_grade_items = 0.00000;
-            $multflactor_grade_items = 1.00000;
-            $plusfactor_grade_items = 0.00000;
-            $aggregationcoef_grade_items = 0.00000;
-            $aggregationcoef2_grade_items = 0.00000;
-        // sortorder -> orden en que se muestra en el libro de calificaciones PENDIENTE DE ASIGNAR
-            $sortorder_grade_items = '';
-        // display
-            $display_grade_items = 0;
-            $decimals_grade_items = 'NULL';
-            $hidden_grade_items = 0;
-            $locked_grade_items = 0;
-            $locktime_grade_items = 0;
-            $needsupdate_grade_items = 0;
-            $weightoverride_grade_items = 0;
-        // timecreated -> ya declarado
-            $timecreated_grade_items = $fecha_course_module;
-            $timemodified_grade_items = $fecha_course_module;
-
-    // Sentencias para escribir en MDL_GRADE_ITEMS
-    $tabla_mdl_grade_items = "INSERT into mdl_grade_items 
-        (id, courseid, categoryid, itemname, itemtype, itemmodule, iteminstance, itemnumber, iteminfo, idnumber, calculation, gradetype, grademax, grademin, scaleid, outcomeid, gradepass, multflactor, plusfactor, aggregationcoef, aggregationcoef2, sortorder, display, decimals, hidden, locked, locktime, needsupdate, weightoverride, timecreated, timemodified) VALUES ($id_grade_items, $courseid_grade_items, $categoryid_grade_items, $itemname_grade_items, $itemtype_grade_items, $itemmodule_grade_items, $iteminstance_grade_items, $itemnumber_grade_items, $iteminfo_grade_items, $idnumber_grade_items, $calculation_grade_items, $gradetype_grade_items, $grademax_grade_items, $grademin_grade_items, $scaleid_grade_items, $outcomeid_grade_items, $gradepass_grade_items, $multflactor_grade_items, $plusfactor_grade_items, $aggregationcoef_grade_items, $aggregationcoef2_grade_items, $sortorder_grade_items, $display_grade_items, $decimals_grade_items, $hidden_grade_items, $locked_grade_items, $locktime_grade_items, $needsupdate_grade_items, $weightoverride_grade_items, $timecreated_grade_items, $timemodified_grade_items)";
-
-    // MDL_GRADE_ITEMS_HISTORY -> columnas   CREO QUE ES AUTOMÁTICA, COMPROBAR
-    
-
-
-    
-/*******************************************************************************/
-    
-    // Pinto actividades en la base de datos
+// Pinto actividades en la base de datos
     for ($i=1; $i<count($elementos); $i++) {
         if(strpos($elementos[$i]->nodeValue, 'Unidad de aprendizaje')) {
             $numero_capitulo++;
@@ -262,9 +98,219 @@
             $parrafos = array();
         }
     }
-echo $tabla_mdl_course_modules.'<br/><br/><br/>';
-echo $tabla_mdl_assign.'<br/><br/><br/>';
-echo $tabla_mdl_grade_items.'<br/><br/><br/>';
+
+
+
+/****************************** DB *********************************************/
+    // VARIABLES con los valores necesarios para agregar tareas en cada tabla
+
+// MDL_ASSIGN -> columnas
+        $mdl_assign = new stdClass();
+    // id -> se ha recogido anteriormente mediante la variable $instance de mdl_course_modules
+        $ultima_instance = 'SELECT MAX(id) AS id FROM mdl_assign';
+        $recojo_instance = $DB->get_record_sql($ultima_instance);
+        $instance = $recojo_instance->id;
+        $instance++;
+        $mdl_assign->id = $instance;
+    // course -> id del curso
+        $mdl_assign->course = $id_course;
+    // name -> nombre del recurso. Se agrega automáticamente a la fila correspondiente
+        $mdl_assign->name = '';
+    // intro -> enunciado del recurso. Se agrega automáticamente a la fila correspondiente. Añadir coletilla.
+        $mdl_assign->intro = '';
+    // introformat -> formato de introducción
+        $mdl_assign->introformat = 1;
+    // alwaysshowdescription -> muestra descripción
+        $mdl_assign->alwaysshowdescription = 1;
+    // nosubmissions, submissiondrafts
+        $mdl_assign->nosubmissions = 0;
+        $mdl_assign->submissiondrafts = 0;
+    // sendnotifications y sendlatenotifications -> enviar notificaciones al tutor
+        $mdl_assign->sendnotifications = 1;
+        $mdl_assign->sendlatenotifications = 1;
+    // duedate
+        $mdl_assign->duedate = 0;
+    // allowsubmissionsfromdate
+        $mdl_assign->allowsubmissionsfromdate = 0;
+    // grade
+        $mdl_assign->grade = 100;
+    // timemodified
+        $fecha_de_archivo = "SELECT * from mdl_files where id<(SELECT max(id) from mdl_files) and filename like '%actividades.htm%' ORDER BY id DESC";
+        $fecha_creacion_archivo = $DB->get_record_sql($fecha_de_archivo);
+        $fecha_course_module = $fecha_creacion_archivo->timecreated;
+        $mdl_assign->timemodified = $fecha_course_module;
+    // requiresubmissionstatement
+        $mdl_assign->requiresubmissionstatement = 0;
+    // completionsubmit
+        $mdl_assign->completionsubmit = 0;
+    // cutoffdate
+        $mdl_assign->cutoffdate = 0;
+    // teamsubmission
+        $mdl_assign->teamsubmission = 0;
+    // requireallteammemberssubmit
+        $mdl_assign->requireallteammemberssubmit = 0;
+    // teamsubmissiongroupingid
+        $mdl_assign->teamsubmissiongroupingid = 0;
+    // blindmarking
+        $mdl_assign->blindmarking = 0;
+    // revealidentities
+        $mdl_assign->revealidentities = 0;
+    // attemptreopenmethod
+        $mdl_assign->attemptreopenmethod = 'none';
+    // maxattempts
+        $mdl_assign->maxattempts = -1;
+    // markingworkflow
+        $mdl_assign->markingworkflow = 0;
+        $mdl_assign->markingallocation = 0;
+    // sendstudentnotifications
+        $mdl_assign->sendstudentnotifications = 1;
+
+    
+    // Sentencia para escribir en MDL_ASSIGN
+        $escribe_assign = $DB->insert_record('assign', $mdl_assign);
+
+
+
+// MDL_GRADE_ITEMS -> columnas
+        $mdl_grade_items = new stdClass();
+    // id -> $id_grade_items obtengo el último agregada para incrementarlo en 1
+        $ultimo_id_grade_items = 'SELECT MAX(id) AS id FROM mdl_grade_items';
+        $recojo_id_grade_items = $DB->get_record_sql($ultimo_id_grade_items);
+        $id_grade_items = $recojo_id_grade_items->id;
+        $id_grade_items++;
+        $mdl_grade_items->id = $id_grade_items;
+    // courseid -> id del curso
+        $mdl_grade_items->courseid = $id_course;
+    // categoryid -> número de tema
+        $mdl_grade_items->categoryid = $numero_capitulo;
+    // itemname -> título del recurso
+        $mdl_grade_items->itemname = $name_assign;
+    // itemtype -> tipo de recurso
+        $mdl_grade_items->itemtype = 'mod';
+    // itemmodule -> módulo que lo genera
+        $mdl_grade_items->itemmodule = 'assign';
+    // iteminstance -> ya generado 
+        $mdl_grade_items->iteminstance = $instance;
+    // itemnumber 
+        $mdl_grade_items->itemnumber = 0;
+    // iteminfo, idnumber, calculation, gradetype, grademax, grademin, scaleid, outcomeid, gradepass
+        $mdl_grade_items->iteminfo = "NULL";
+        $mdl_grade_items->idnumber = "NULL";
+        $mdl_grade_items->calculation = "NULL";
+        $mdl_grade_items->gradetype = 1;
+        $mdl_grade_items->grademax = 100.00000;
+        $mdl_grade_items->grademin = 0.00000;
+        $mdl_grade_items->scaleid = "";
+        $mdl_grade_items->outcomeid = "";
+        $mdl_grade_items->gradepass = 0.00000;
+        $mdl_grade_items->multfactor = 1.00000;
+        $mdl_grade_items->plusfactor = 0.00000;
+        $mdl_grade_items->aggregationcoef = 0.00000;
+        $mdl_grade_items->aggregationcoef2 = 0.00000;
+    // sortorder -> orden en que se muestra en el libro de calificaciones PENDIENTE DE ASIGNAR
+        $mdl_grade_items->sortorder = '';
+    // display
+        $mdl_grade_items->display = 0;
+        $mdl_grade_items->decimals = "";
+        $mdl_grade_items->hidden = 0;
+        $mdl_grade_items->locked = 0;
+        $mdl_grade_items->locktime = 0;
+        $mdl_grade_items->needsupdate = 0;
+        $mdl_grade_items->weightoverride = 0;
+    // timecreated -> ya declarado
+        $mdl_grade_items->timecreated = $fecha_course_module;
+        $mdl_grade_items->timemodified = $fecha_course_module;
+
+
+    // Sentencia para escribir en MDL_GRADE_ITEMS
+        $escribe_grade_items = $DB->insert_record('grade_items', $mdl_grade_items);
+
+
+
+
+// MDL_COURSE_MODULES -> columnas
+        $mdl_course_modules = new stdClass();
+    //id = $id_course_modules -> obtengo el último agregada para incrementarlo en 1
+        $ultimo_id_course_modules = 'SELECT MAX(id) AS id FROM mdl_course_modules';
+        $recojo_id_course = $DB->get_record_sql($ultimo_id_course_modules);
+        $id_course_modules = $recojo_id_course->id;
+        $id_course_modules++;
+        $mdl_course_modules->id = $id_course_modules;
+    // course = $id_course
+        $mdl_course_modules->course = $id_course;
+    // module  -> el típo de recurso a insertar. 1 tarea, 5 actividad (foro). Condición para distinguir entre actividad o tarea que asigna el valor a esta variable
+        $mdl_course_modules->module = 0;
+    // instance -> equivale a la id de la tabla mdl_assign donde se añaden los enunciados, por lo que obtengo el último id para agregarlo
+        $mdl_course_modules->instance = $instance;
+    // section -> el número del tema donde añadir el recurso. Se incrementa automáticamente tantas veces como temas hay.
+        $mdl_course_modules->section = $numero_capitulo;
+    // idnumber -> no es obligatorio, por lo que será NULL o vacío
+        $mdl_course_modules->idnumber = '';
+    // added -> fecha de inclusión. Se pondrá la misma que la del fichero subido
+        $mdl_course_modules->added = $fecha_course_module;
+    // score -> puntuación. Será siempre cero hasta recibir calificación
+        $mdl_course_modules->score = 0;
+    // indent -> si se ha indentado hacia la izquierda
+        $mdl_course_modules->indent = 0;
+    // visible y visibleold -> se muestra o está oculto
+        $mdl_course_modules->visible = 1;
+        $mdl_course_modules->visibleold = 1;
+    // groupmode y groupingid -> grupos permitidos
+        $mdl_course_modules->groupmode = 0;
+        $mdl_course_modules->groupingid = 0;
+    // completion, completiongradeitemnumber, completionview y completionexpected -> Finalización
+        $mdl_course_modules->completion = 0;
+        $mdl_course_modules->completiongradeitemnumber = "";
+        $mdl_course_modules->completionview = 0;
+        $mdl_course_modules->completionexpected = 0;
+    // showdescription -> muestra descripción
+        $mdl_course_modules->showdescription = 0;
+    // availability -> disponibilidad
+        $mdl_course_modules->availability = "NULL";
+
+
+    // Sentencia para escribir en MDL_COURSE_MODULES
+        $escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);
+
+
+/* En esta tabla deberá actualizarse únicamente los campos pertenecientes a los temas del curso, en la columna sequence
+
+// MDL_COURSE_SECTIONS -> columnas
+        $mdl_course_sections = nex stdClass();
+    //id = $id_course_modules -> obtengo el último agregada para incrementarlo en 1
+        $ultimo_id_course_sections = 'SELECT MAX(id) AS id FROM mdl_course_sections';
+        $recojo_id_course_sections = $DB->get_record_sql($ultimo_id_course_modules);
+        $id_course_sections = $recojo_id_course_sections->id;
+        $id_course_sections++;
+        $mdl_course_sections->id = $id_course_sections;
+    //course = curso
+        $mdl_course_sections->course = $id_course;
+    //section = capítulo
+        $mdl_course_sections->section = $numero_capitulo;
+    // name = título del recurso
+        $mdl_course_sections->name = '';
+    // summary
+        $mdl_course_sections->summary = '';
+    // summaryformat
+        $mdl_course_sections->summaryformat = 1;
+    // sequence -> aquí hay que recoger lo que hay en cada uno de section pertenecientes al id del curso, y agregar el $id_course_modules a continuación separado con ,
+        $mdl_course_sections->sequence = 1;
+    // visible
+        $mdl_course_sections->visible = 1;
+    // availabillity
+        $mdl_course_sections->availability = "NULL";
+
+    // Sentencia para escribir en MDL_COURSE_SECTIONS
+        $escribe_course_sections = $DB->insert_record('course_sections', $mdl_course_sections);
+        
+*/
+        
+/*******************************************************************************/
+    
+    
+
+
+//print_r($mdl_assign);
 //$DB->insert_record($table, $dataobject, $returnid=true, $bulk=false)
 
 
