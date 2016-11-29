@@ -60,18 +60,56 @@
     }*/
 
 
+
 $numero_capitulo = 0;
+// Pinto actividades en la base de datos
+    for ($i=1; $i<count($elementos); $i++) {
+        if(strpos($elementos[$i]->nodeValue, 'Unidad de aprendizaje')) {
+            $numero_capitulo++;
+            echo $numero_capitulo.'<br/>';
+        } else {
+            // Obtengo los párrafos pertenecientes a cada unidad
+            foreach ($elementos[$i]->getElementsbyTagname('p') as $parrafo) {
+                $parrafos[] = $parrafo->nodeValue;
+            }
+            for($j=0; $j<count($parrafos); $j++) {
+                if ($j==0) {
+                    // Condición para obtener el tipo de recurso -> $module_type
+                    if(strstr($parrafos[0], 'Actividad colaborativa')) {
+                        $module_type = 5;
+                        // Asigno el nombre de la tarea
+                        $name_assign = $parrafos[0];
+                    } else if (strstr($parrafos[0], 'Tarea de evaluación')) {
+                        $module_type = 1;
+                        // Asigno el nombre de la tarea
+                        $name_assign = $parrafos[0];
+                    } else { $module_type = 0; }
+                    
+                    echo '<strong>'.$parrafos[$j].'</strong></br>';
+                } else {
+                    echo $parrafos[$j].'</br>';   
+                }
+            }
+            echo '<br/>';
+            // Inicializo párrafos para que pase de tema
+            $intro_assign = implode('<br/>', $parrafos);
+            $parrafos = array();
+        }
+    }
+
+
+
 /****************************** DB *********************************************/
     // VARIABLES con los valores necesarios para agregar tareas en cada tabla
 
 // MDL_ASSIGN -> columnas
         $mdl_assign = new stdClass();
     // id -> se ha recogido anteriormente mediante la variable $instance de mdl_course_modules
-        $ultima_instance_assign = 'SELECT MAX(id) AS id FROM mdl_assign';
-        $recojo_instance_assign = $DB->get_record_sql($ultima_instance_assign);
-        $instance_assign = $recojo_instance_assign->id;
-        $instance_assign++;
-        $mdl_assign->id = $instance_assign;
+        $ultima_instance = 'SELECT MAX(id) AS id FROM mdl_assign';
+        $recojo_instance = $DB->get_record_sql($ultima_instance);
+        $instance = $recojo_instance->id;
+        $instance++;
+        $mdl_assign->id = $instance;
     // course -> id del curso
         $mdl_assign->course = $id_course;
     // name -> nombre del recurso. Se agrega automáticamente a la fila correspondiente
@@ -81,13 +119,13 @@ $numero_capitulo = 0;
     // introformat -> formato de introducción
         $mdl_assign->introformat = 1;
     // alwaysshowdescription -> muestra descripción
-        $mdl_assign->alwaysshowdescription = 0;
+        $mdl_assign->alwaysshowdescription = 1;
     // nosubmissions, submissiondrafts
         $mdl_assign->nosubmissions = 0;
         $mdl_assign->submissiondrafts = 0;
     // sendnotifications y sendlatenotifications -> enviar notificaciones al tutor
         $mdl_assign->sendnotifications = 1;
-        $mdl_assign->sendlatenotifications = 0;
+        $mdl_assign->sendlatenotifications = 1;
     // duedate
         $mdl_assign->duedate = 0;
     // allowsubmissionsfromdate
@@ -127,22 +165,22 @@ $numero_capitulo = 0;
 
     
     // Sentencia para escribir en MDL_ASSIGN
-        //$escribe_assign = $DB->insert_record('assign', $mdl_assign);
+        $escribe_assign = $DB->insert_record('assign', $mdl_assign);
 
 
 
 // MDL_GRADE_ITEMS -> columnas
         $mdl_grade_items = new stdClass();
-    // id -> $id_grade_items equivale a id de la tabla assign
-        /*$ultimo_id_grade_items = 'SELECT MAX(id) AS id FROM mdl_grade_items';
+    // id -> $id_grade_items obtengo el último agregada para incrementarlo en 1
+        $ultimo_id_grade_items = 'SELECT MAX(id) AS id FROM mdl_grade_items';
         $recojo_id_grade_items = $DB->get_record_sql($ultimo_id_grade_items);
         $id_grade_items = $recojo_id_grade_items->id;
-        $id_grade_items++;*/
-        $mdl_grade_items->id = $instance_assign;
+        $id_grade_items++;
+        $mdl_grade_items->id = $id_grade_items;
     // courseid -> id del curso
         $mdl_grade_items->courseid = $id_course;
     // categoryid -> número de tema
-        //$mdl_grade_items->categoryid = $numero_capitulo;
+        $mdl_grade_items->categoryid = $numero_capitulo;
     // itemname -> título del recurso
         $mdl_grade_items->itemname = $name_assign;
     // itemtype -> tipo de recurso
@@ -150,21 +188,18 @@ $numero_capitulo = 0;
     // itemmodule -> módulo que lo genera
         $mdl_grade_items->itemmodule = 'assign';
     // iteminstance -> ya generado 
-        $ultima_instance_grade_items = 'SELECT MAX(id) AS id FROM mdl_assign';
-        $recojo_instance_grade_items = $DB->get_record_sql($ultima_instance_grade_items);
-        $instance_grade_items = $recojo_instance_grade_items->id;
-        $instance_grade_items++;
-        $mdl_grade_items->iteminstance = $instance_grade_items;
+        $mdl_grade_items->iteminstance = $instance;
     // itemnumber 
         $mdl_grade_items->itemnumber = 0;
     // iteminfo, idnumber, calculation, gradetype, grademax, grademin, scaleid, outcomeid, gradepass
-        //$mdl_grade_items->idnumber = "NULL";
-        //$mdl_grade_items->calculation = "NULL";
+        $mdl_grade_items->iteminfo = "NULL";
+        $mdl_grade_items->idnumber = "NULL";
+        $mdl_grade_items->calculation = "NULL";
         $mdl_grade_items->gradetype = 1;
         $mdl_grade_items->grademax = 100.00000;
         $mdl_grade_items->grademin = 0.00000;
-        //$mdl_grade_items->scaleid = "";
-        //$mdl_grade_items->outcomeid = "";
+        $mdl_grade_items->scaleid = "";
+        $mdl_grade_items->outcomeid = "";
         $mdl_grade_items->gradepass = 0.00000;
         $mdl_grade_items->multfactor = 1.00000;
         $mdl_grade_items->plusfactor = 0.00000;
@@ -174,7 +209,7 @@ $numero_capitulo = 0;
         $mdl_grade_items->sortorder = '';
     // display
         $mdl_grade_items->display = 0;
-        //$mdl_grade_items->decimals = "";
+        $mdl_grade_items->decimals = "";
         $mdl_grade_items->hidden = 0;
         $mdl_grade_items->locked = 0;
         $mdl_grade_items->locktime = 0;
@@ -186,7 +221,7 @@ $numero_capitulo = 0;
 
 
     // Sentencia para escribir en MDL_GRADE_ITEMS
-        //$escribe_grade_items = $DB->insert_record('grade_items', $mdl_grade_items);
+        $escribe_grade_items = $DB->insert_record('grade_items', $mdl_grade_items);
 
 
 
@@ -204,14 +239,9 @@ $numero_capitulo = 0;
     // module  -> el típo de recurso a insertar. 1 tarea, 5 actividad (foro). Condición para distinguir entre actividad o tarea que asigna el valor a esta variable
         $mdl_course_modules->module = 0;
     // instance -> equivale a la id de la tabla mdl_assign donde se añaden los enunciados, por lo que obtengo el último id para agregarlo
-        /*$ultima_instance_course_modules = 'SELECT MAX(instance) AS instance FROM mdl_course_modules';
-        $recojo_instance_course_modules = $DB->get_record_sql($ultima_instance_course_modules);
-        $instance_course_modules = $recojo_instance_course_modules->id;
-        $instance_course_modules++;*/
-        // Equivale a la id del elemento en la tabla mdl_assign, la asigno antes de insertar filas
-        //$mdl_course_modules->instance = $mdl_assign->id;
+        $mdl_course_modules->instance = $instance;
     // section -> el número del tema donde añadir el recurso. Se incrementa automáticamente tantas veces como temas hay.
-        //$mdl_course_modules->section = $numero_capitulo;
+        $mdl_course_modules->section = $numero_capitulo;
     // idnumber -> no es obligatorio, por lo que será NULL o vacío
         $mdl_course_modules->idnumber = '';
     // added -> fecha de inclusión. Se pondrá la misma que la del fichero subido
@@ -228,17 +258,17 @@ $numero_capitulo = 0;
         $mdl_course_modules->groupingid = 0;
     // completion, completiongradeitemnumber, completionview y completionexpected -> Finalización
         $mdl_course_modules->completion = 0;
-        //$mdl_course_modules->completiongradeitemnumber = "";
+        $mdl_course_modules->completiongradeitemnumber = "";
         $mdl_course_modules->completionview = 0;
         $mdl_course_modules->completionexpected = 0;
     // showdescription -> muestra descripción
         $mdl_course_modules->showdescription = 0;
     // availability -> disponibilidad
-        //$mdl_course_modules->availability = "NULL";
+        $mdl_course_modules->availability = "NULL";
 
 
     // Sentencia para escribir en MDL_COURSE_MODULES
-        //$escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);
+        $escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);
 
 
 /* En esta tabla deberá actualizarse únicamente los campos pertenecientes a los temas del curso, en la columna sequence
@@ -274,78 +304,6 @@ $numero_capitulo = 0;
 */
         
 /*******************************************************************************/
-
-
-
-
-// Pinto actividades en la base de datos
-    for ($i=1; $i<count($elementos); $i++) {
-        if(strpos($elementos[$i]->nodeValue, 'Unidad de aprendizaje')) {
-            $numero_capitulo++;
-            $mdl_grade_items->categoryid = $numero_capitulo;
-            // Obtengo la id de mdl_course_sections para insertarla en mdl_course_modules, ya que tiene que coincidir
-            $section_mdl_course_modules = "SELECT id from mdl_course_sections WHERE course = $id_course and section = $numero_capitulo";
-            $section_mdl_course_modules_resultado = $DB->get_record_sql($section_mdl_course_modules);
-            $mdl_course_modules->section = $section_mdl_course_modules_resultado->id;
-            
-            echo $numero_capitulo.'<br/>';
-        } else {
-            // Obtengo los párrafos pertenecientes a cada unidad
-            foreach ($elementos[$i]->getElementsbyTagname('p') as $parrafo) {
-                $parrafos[] = $parrafo->nodeValue;
-            }
-            for($j=0; $j<count($parrafos); $j++) {
-                if ($j==0) {
-                    // Condición para obtener el tipo de recurso -> $module_type
-                    if(strstr($parrafos[0], 'Actividad colaborativa')) {
-                        //  CAMBIAR A 5 PARA FOROS
-                        $module_type = 1;
-                        $mdl_course_modules->module = $module_type;
-                        // Asigno el nombre de la tarea
-                        $name_assign = $parrafos[0];
-                    } else if (strstr($parrafos[0], 'Tarea de evaluación')) {
-                        $module_type = 1;
-                        $mdl_course_modules->module = $module_type;
-                        // Asigno el nombre de la tarea
-                        $name_assign = $parrafos[0];
-                    } else { $module_type = 0; }
-                    echo '<strong>'.$parrafos[$j].'</strong></br>';
-                    
-                    $mdl_assign->name = $parrafos[$j];
-                    $mdl_grade_items->itemname = $parrafos[$j];
-                } else {
-                    echo $parrafos[$j].'</br>';
-                    $intro_assign = implode('<br/>', $parrafos);
-                    $mdl_assign->intro = $intro_assign;
-                    //$mdl_assign->intro = $mdl_assign->intro.'<p>'.$parrafos[$j].'</p>';
-                }
-            }
-            echo '<br/>';
-            // Sentencia para escribir en MDL_ASSIGN
-                $escribe_assign = $DB->insert_record('assign', $mdl_assign);
-                
-                // Obtengo la id del elemento creado para asignar el mismo valor a instance en la tabla mdl_course_modules
-                $id_para_instance_assign = "SELECT id FROM mdl_assign ORDER BY id DESC";
-                $id_para_instance_assign_resultado = $DB->get_record_sql($id_para_instance_assign);
-                $mdl_course_modules->instance = $id_para_instance_assign_resultado->id;
-            
-            // Sentencia para escribir en MDL_GRADE_ITEMS
-                $escribe_grade_items = $DB->insert_record('grade_items', $mdl_grade_items);
-            
-            // Sentencia para escribir en MDL_COURSE_MODULES
-                $escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);
-            
-            // Inicializo párrafos para que pase de tema
-            /*$intro_assign = implode('<br/>', $parrafos);
-            $mdl_assign->intro = $intro_assign;*/
-            $parrafos = array();
-            
-        }
-    }
-
-
-
-
     
     
 
