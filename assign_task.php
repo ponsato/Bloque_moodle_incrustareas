@@ -269,6 +269,38 @@ $numero_capitulo = 0;
         $escribe_course_sections = $DB->insert_record('course_sections', $mdl_course_sections);
         
 */
+
+// MDL_FORUM -> columnas
+        $mdl_forum = new stdClass();
+    //id = $id_course_modules -> obtengo el último agregada para incrementarlo en 1
+        $ultimo_id_forum = 'SELECT MAX(id) AS id FROM mdl_forum';
+        $recojo_id_forum = $DB->get_record_sql($ultimo_id_forum);
+        $id_forum = $recojo_id_forum->id;
+        $id_forum++;
+        $mdl_forum->id = $id_forum;
+        $mdl_forum->course = $id_course;
+        $mdl_forum->type = 'general';
+        /*$mdl_forum->name = '';
+        $mdl_forum->intro = '';*/
+        $mdl_forum->introformat = 1;
+        $mdl_forum->assessed = 0;
+        $mdl_forum->assesstimestart = 0;
+        $mdl_forum->assesstimefinish = 0;
+        $mdl_forum->scale = 1;
+        $mdl_forum->maxbytes = 512000;
+        $mdl_forum->maxattachments = 9;
+        $mdl_forum->forcesubscribe = 0;
+        $mdl_forum->trackingtype = 1;
+        $mdl_forum->rsstype = 0;
+        $mdl_forum->rssarticles = 0;
+        $mdl_forum->timemodified = $fecha_course_module;
+        $mdl_forum->warnafter = 0;
+        $mdl_forum->blockafter= 0;
+        $mdl_forum->blockperiod = 0;
+        $mdl_forum->completiondiscussions = 0;
+        $mdl_forum->completionreplies = 0;
+        $mdl_forum->completionposts = 0;
+        $mdl_forum->displaywordcount = 0;
         
 /*******************************************************************************/
 
@@ -294,10 +326,10 @@ $numero_capitulo = 0;
                 if ($j==0) {
                     // Condición para obtener el tipo de recurso -> $module_type
                     if(strstr($parrafos[0], 'Actividad colaborativa')) {
-                        //  CAMBIAR A 5 PARA FOROS
-                        $module_type = 1;
+                        //  CAMBIAR A 9 PARA FOROS
+                        $module_type = 9;
                         $mdl_course_modules->module = $module_type;
-                        // Asigno el nombre de la tarea
+                        // Asigno el nombre de la actividad
                         $parrafos[0] = "<h2>".$parrafos[0]."</h2>";
                         $name_assign = $parrafos[0];
                     } else if (strstr($parrafos[0], 'Tarea de evaluación')) {
@@ -311,6 +343,7 @@ $numero_capitulo = 0;
                     
                     $mdl_assign->name = $parrafos[$j];
                     $mdl_grade_items->itemname = $parrafos[$j];
+                    $mdl_forum->name = $parrafos[$j];
                 } else {
 //                    echo $parrafos[$j].'</br>';
                     if((strstr($parrafos[$j], 'Objetivos')) || (strstr($parrafos[$j], 'Enunciado')) || (strstr($parrafos[$j], 'Duración')) || (strstr($parrafos[$j], 'Recursos de apoyo')) || (strstr($parrafos[$j], 'Criterio de evaluación asociado')) || (strstr($parrafos[$j], 'Orientaciones para la entrega'))) {
@@ -321,8 +354,12 @@ $numero_capitulo = 0;
                     
                     $intro_assign = implode('', $parrafos);
                     $mdl_assign->intro = $intro_assign;
+                    $mdl_forum->intro = $intro_assign;
                 }
             }
+            
+            if ($mdl_course_modules->module == 1) {
+                
             // Sentencia para escribir en MDL_ASSIGN
                 $escribe_assign = $DB->insert_record('assign', $mdl_assign);
                 
@@ -357,6 +394,49 @@ $numero_capitulo = 0;
             
             // Sentencia para escribir en MDL_GRADE_ITEMS
                 $escribe_grade_items = $DB->insert_record('grade_items', $mdl_grade_items);
+            } else if ($mdl_course_modules->module == 9) {
+                
+            // Sentencia para escribir en MDL_FORUM
+                $escribe_forum = $DB->insert_record('forum', $mdl_forum);
+                
+                // Obtengo la id del elemento creado en mdl_forum para asignar el mismo valor a instance en la tabla mdl_course_modules
+                $id_para_instance_assign = "SELECT id FROM mdl_forum ORDER BY id DESC";
+                $id_para_instance_assign_resultado = $DB->get_record_sql($id_para_instance_assign);
+                $mdl_course_modules->instance = $id_para_instance_assign_resultado->id;
+            
+            // Sentencia para escribir en MDL_COURSE_MODULES
+                $escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);    
+            
+                // Obtengo la id del elemento creado en mdl_course_modules para asignar el mismo valor a sequence en la tabla mdl_course_sections
+                $id_para_sequence = "SELECT id FROM mdl_course_modules ORDER BY id DESC";
+                $id_para_sequence_resultado = $DB->get_record_sql($id_para_sequence);
+            
+                // Obtengo el contenido actual de sequence para agregar el nuevo valor al final
+                $secuence_contenido = "SELECT sequence FROM mdl_course_sections WHERE id = $mdl_course_modules->section and section = $numero_capitulo";
+                $secuence_contenido_resultado = $DB->get_record_sql($secuence_contenido);
+                // Agrego el nuevo valor al final
+                $secuence_contenido_resultado = $secuence_contenido_resultado->sequence.','.$id_para_sequence_resultado->id;
+                            
+                $secuence_nuevo = new stdClass();
+                $secuence_nuevo->id = $mdl_course_modules->section;
+                $secuence_nuevo->sequence = $secuence_contenido_resultado;
+                                        
+                $DB->update_record('course_sections', $secuence_nuevo);
+            
+                $item_instance_grade_items = 'SELECT MAX(id) AS id FROM mdl_assign';
+                $item_instance_grade_items_resultado = $DB->get_record_sql($item_instance_grade_items);
+                $mdl_grade_items->iteminstance = $item_instance_grade_items_resultado->id;
+                
+            
+            } else {
+                echo "<script languaje='javascript' type='text/javascript'>alert('Se jodión la marrana');</script>";
+            }
+            
+            
+            
+            
+            
+            
             
             // Inicializo párrafos para que pase de tema
             /*$intro_assign = implode('<br/>', $parrafos);
@@ -367,7 +447,7 @@ $numero_capitulo = 0;
     }
 
     purge_all_caches();
-    echo "<script languaje='javascript' type='text/javascript'>alert('Ole mis cojones!!!'); window.opener.location.reload(); window.close();</script>";
+    echo "<script languaje='javascript' type='text/javascript'>alert('Actividades añadidas con éxito!!!'); window.opener.location.reload(); window.close();</script>";
 
 
     

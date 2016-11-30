@@ -20,9 +20,6 @@ class block_incrustareas_edit_form extends block_edit_form {
         $mform->addElement('filemanager', 'archivo_tareas', 'Subir archivos aquí', null, array('subdirs' => 0, 'maxbytes' => $maxbytes, 'areamaxbytes' => 10485760, 'maxfiles' => 50, 'accepted_types' => '*')); 
         $mform->addElement('select', 'resource', 'Tipo de curso', array('Capacitación', 'Certificado'));
         $mform->setDefault('type', 'Capacitación');
-        $mform->addElement('text', 'id_curso', 'Id del curso<br/><small>Indicado en la url tras ?id=</small>');
-        $mform->setDefault('id_curso', ' ');
-        $mform->setType('id_curso', PARAM_INT);
     }
 }
 
