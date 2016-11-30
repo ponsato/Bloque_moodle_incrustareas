@@ -32,29 +32,6 @@
         $elementos[] = $elemento;
     }
     
-    // Distingo los títulos de unidad
-    // ESTE CÓDIGO FUNCIONA PARA SEPARAR Y PINTAR ACTIVIDADES. Guardo como seguridad, modifico para que escriba en base de datos
-    /*for ($i=1; $i<count($elementos); $i++) {
-        if(strpos($elementos[$i]->nodeValue, 'Unidad de aprendizaje')) {
-            echo '<h2>'.$elementos[$i]->nodeValue.'</h2>';
-        } else {
-            // Obtengo los párrafos pertenecientes a cada unidad
-            foreach ($elementos[$i]->getElementsbyTagname('p') as $parrafo) {
-                $parrafos[] = $parrafo->nodeValue;
-            }
-            for($j=0; $j<count($parrafos); $j++) {
-                if ($j==0) {
-                    echo '<strong>'.$parrafos[$j].'</strong></br>';
-                } else {
-                    echo $parrafos[$j].'</br>';        
-                }
-            }
-            echo '<br/>';
-            // Inicializo párrafos para que pase de tema
-            $parrafos = array();
-        }
-       
-    }*/
 
 
 $numero_capitulo = 0;
@@ -426,17 +403,10 @@ $numero_capitulo = 0;
                 $item_instance_grade_items = 'SELECT MAX(id) AS id FROM mdl_assign';
                 $item_instance_grade_items_resultado = $DB->get_record_sql($item_instance_grade_items);
                 $mdl_grade_items->iteminstance = $item_instance_grade_items_resultado->id;
-                
-            
+
             } else {
-                echo "<script languaje='javascript' type='text/javascript'>alert('Se jodión la marrana');</script>";
+                echo "<script languaje='javascript' type='text/javascript'>alert('Las actividades no se han añadido correctamente');</script>";
             }
-            
-            
-            
-            
-            
-            
             
             // Inicializo párrafos para que pase de tema
             /*$intro_assign = implode('<br/>', $parrafos);
@@ -448,15 +418,5 @@ $numero_capitulo = 0;
 
     purge_all_caches();
     echo "<script languaje='javascript' type='text/javascript'>alert('Actividades añadidas con éxito!!!'); window.opener.location.reload(); window.close();</script>";
-
-
-    
-    
-
-
-//print_r($mdl_assign);
-//$DB->insert_record($table, $dataobject, $returnid=true, $bulk=false)
-
-
 
 ?>
