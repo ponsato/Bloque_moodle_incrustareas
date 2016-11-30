@@ -27,13 +27,10 @@
     foreach ($documentopath->query('//p[@class="MsoTitle"]') as $titulos_capitulos) {
         $titulos_capituloss[] = $titulos_capitulos->nodeValue;
     }
-    //print_r($titulos_capituloss);
-
     // Obtengo cada uno de los elementos
     foreach ($documentopath->query('//div') as $elemento) {
         $elementos[] = $elemento;
     }
-    //print_r($elementos[1]->nodeValue);
     
     // Distingo los títulos de unidad
     // ESTE CÓDIGO FUNCIONA PARA SEPARAR Y PINTAR ACTIVIDADES. Guardo como seguridad, modifico para que escriba en base de datos
@@ -241,7 +238,7 @@ $numero_capitulo = 0;
         //$escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);
 
 
-/* En esta tabla deberá actualizarse únicamente los campos pertenecientes a los temas del curso, en la columna sequence
+/* En esta tabla deberá actualizarse únicamente los campos pertenecientes a los temas del curso, en la columna sequence, que se hace directamente en la misma función
 
 // MDL_COURSE_SECTIONS -> columnas
         $mdl_course_sections = nex stdClass();
@@ -281,15 +278,13 @@ $numero_capitulo = 0;
 // Pinto actividades en la base de datos
     for ($i=1; $i<count($elementos); $i++) {
         if(strpos($elementos[$i]->nodeValue, 'Unidad de aprendizaje')) {
-            // Distinto capítulos
+            // Distingo capítulos
             $numero_capitulo++;
             $mdl_grade_items->categoryid = $numero_capitulo;
             // Obtengo la id de mdl_course_sections para insertarla en mdl_course_modules, ya que tiene que coincidir
             $section_mdl_course_modules = "SELECT id FROM mdl_course_sections WHERE course = $id_course and section = $numero_capitulo";
             $section_mdl_course_modules_resultado = $DB->get_record_sql($section_mdl_course_modules);
             $mdl_course_modules->section = $section_mdl_course_modules_resultado->id;
-            
-            echo $numero_capitulo.'<br/>';
         } else {
             // Obtengo los párrafos pertenecientes a cada unidad
             foreach ($elementos[$i]->getElementsbyTagname('p') as $parrafo) {
@@ -303,25 +298,31 @@ $numero_capitulo = 0;
                         $module_type = 1;
                         $mdl_course_modules->module = $module_type;
                         // Asigno el nombre de la tarea
+                        $parrafos[0] = "<h2>".$parrafos[0]."</h2>";
                         $name_assign = $parrafos[0];
                     } else if (strstr($parrafos[0], 'Tarea de evaluación')) {
                         $module_type = 1;
                         $mdl_course_modules->module = $module_type;
                         // Asigno el nombre de la tarea
+                        $parrafos[0] = "<h2>".$parrafos[0]."</h2>";
                         $name_assign = $parrafos[0];
                     } else { $module_type = 0; }
-                    echo '<strong>'.$parrafos[$j].'</strong></br>';
+//                    echo '<strong>'.$parrafos[$j].'</strong></br>';
                     
                     $mdl_assign->name = $parrafos[$j];
                     $mdl_grade_items->itemname = $parrafos[$j];
                 } else {
-                    echo $parrafos[$j].'</br>';
-                    $intro_assign = implode('<br/>', $parrafos);
+//                    echo $parrafos[$j].'</br>';
+                    if((strstr($parrafos[$j], 'Objetivos')) || (strstr($parrafos[$j], 'Enunciado')) || (strstr($parrafos[$j], 'Duración')) || (strstr($parrafos[$j], 'Recursos de apoyo')) || (strstr($parrafos[$j], 'Criterio de evaluación asociado')) || (strstr($parrafos[$j], 'Orientaciones para la entrega'))) {
+                        $parrafos[$j] = "<p style='font-size:12pt; font-weight:bold; font-family:verdana, arial, helvetica, sans-serif;'>".$parrafos[$j]."</p>";
+                    } else {
+                        $parrafos[$j] = "<p style='font-size:12pt; font-family:verdana, arial, helvetica, sans-serif;'>".$parrafos[$j]."</p>";
+                    }
+                    
+                    $intro_assign = implode('', $parrafos);
                     $mdl_assign->intro = $intro_assign;
-                    //$mdl_assign->intro = $mdl_assign->intro.'<p>'.$parrafos[$j].'</p>';
                 }
             }
-            echo '<br/>';
             // Sentencia para escribir en MDL_ASSIGN
                 $escribe_assign = $DB->insert_record('assign', $mdl_assign);
                 
@@ -366,7 +367,7 @@ $numero_capitulo = 0;
     }
 
     purge_all_caches();
-    echo "<script languaje='javascript' type='text/javascript'>alert('Actividades incrustadas con éxito!!!'); window.opener.location.reload(); window.close();</script>";
+    echo "<script languaje='javascript' type='text/javascript'>alert('Ole mis cojones!!!'); window.opener.location.reload(); window.close();</script>";
 
 
     
