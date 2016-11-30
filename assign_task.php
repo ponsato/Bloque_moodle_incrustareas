@@ -150,11 +150,11 @@ $numero_capitulo = 0;
     // itemmodule -> módulo que lo genera
         $mdl_grade_items->itemmodule = 'assign';
     // iteminstance -> ya generado 
-        $ultima_instance_grade_items = 'SELECT MAX(id) AS id FROM mdl_assign';
+        /*$ultima_instance_grade_items = 'SELECT MAX(id) AS id FROM mdl_assign';
         $recojo_instance_grade_items = $DB->get_record_sql($ultima_instance_grade_items);
         $instance_grade_items = $recojo_instance_grade_items->id;
         $instance_grade_items++;
-        $mdl_grade_items->iteminstance = $instance_grade_items;
+        $mdl_grade_items->iteminstance = $instance_grade_items;*/
     // itemnumber 
         $mdl_grade_items->itemnumber = 0;
     // iteminfo, idnumber, calculation, gradetype, grademax, grademin, scaleid, outcomeid, gradepass
@@ -281,10 +281,11 @@ $numero_capitulo = 0;
 // Pinto actividades en la base de datos
     for ($i=1; $i<count($elementos); $i++) {
         if(strpos($elementos[$i]->nodeValue, 'Unidad de aprendizaje')) {
+            // Distinto capítulos
             $numero_capitulo++;
             $mdl_grade_items->categoryid = $numero_capitulo;
             // Obtengo la id de mdl_course_sections para insertarla en mdl_course_modules, ya que tiene que coincidir
-            $section_mdl_course_modules = "SELECT id from mdl_course_sections WHERE course = $id_course and section = $numero_capitulo";
+            $section_mdl_course_modules = "SELECT id FROM mdl_course_sections WHERE course = $id_course and section = $numero_capitulo";
             $section_mdl_course_modules_resultado = $DB->get_record_sql($section_mdl_course_modules);
             $mdl_course_modules->section = $section_mdl_course_modules_resultado->id;
             
@@ -324,16 +325,37 @@ $numero_capitulo = 0;
             // Sentencia para escribir en MDL_ASSIGN
                 $escribe_assign = $DB->insert_record('assign', $mdl_assign);
                 
-                // Obtengo la id del elemento creado para asignar el mismo valor a instance en la tabla mdl_course_modules
+                // Obtengo la id del elemento creado en mdl_assign para asignar el mismo valor a instance en la tabla mdl_course_modules
                 $id_para_instance_assign = "SELECT id FROM mdl_assign ORDER BY id DESC";
                 $id_para_instance_assign_resultado = $DB->get_record_sql($id_para_instance_assign);
                 $mdl_course_modules->instance = $id_para_instance_assign_resultado->id;
             
+            // Sentencia para escribir en MDL_COURSE_MODULES
+                $escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);    
+            
+                // Obtengo la id del elemento creado en mdl_course_modules para asignar el mismo valor a sequence en la tabla mdl_course_sections
+                $id_para_sequence = "SELECT id FROM mdl_course_modules ORDER BY id DESC";
+                $id_para_sequence_resultado = $DB->get_record_sql($id_para_sequence);
+            
+                // Obtengo el contenido actual de sequence para agregar el nuevo valor al final
+                $secuence_contenido = "SELECT sequence FROM mdl_course_sections WHERE id = $mdl_course_modules->section and section = $numero_capitulo";
+                $secuence_contenido_resultado = $DB->get_record_sql($secuence_contenido);
+                // Agrego el nuevo valor al final
+                $secuence_contenido_resultado = $secuence_contenido_resultado->sequence.','.$id_para_sequence_resultado->id;
+                            
+                $secuence_nuevo = new stdClass();
+                $secuence_nuevo->id = $mdl_course_modules->section;
+                $secuence_nuevo->sequence = $secuence_contenido_resultado;
+                                        
+                $DB->update_record('course_sections', $secuence_nuevo);
+            
+                $item_instance_grade_items = 'SELECT MAX(id) AS id FROM mdl_assign';
+                $item_instance_grade_items_resultado = $DB->get_record_sql($item_instance_grade_items);
+                $mdl_grade_items->iteminstance = $item_instance_grade_items_resultado->id;
+            
+            
             // Sentencia para escribir en MDL_GRADE_ITEMS
                 $escribe_grade_items = $DB->insert_record('grade_items', $mdl_grade_items);
-            
-            // Sentencia para escribir en MDL_COURSE_MODULES
-                $escribe_course_modules = $DB->insert_record('course_modules', $mdl_course_modules);
             
             // Inicializo párrafos para que pase de tema
             /*$intro_assign = implode('<br/>', $parrafos);
@@ -343,7 +365,8 @@ $numero_capitulo = 0;
         }
     }
 
-
+    purge_all_caches();
+    echo "<script languaje='javascript' type='text/javascript'>alert('Actividades incrustadas con éxito!!!'); window.opener.location.reload(); window.close();</script>";
 
 
     
